@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Support
+    url: https://onlyfunpeoplestudios.github.io/profeos/support.html
+    about: Need help? Check our support page.
+  - name: Discussions
+    url: https://github.com/OnlyFunPeopleStudios/onlyfunpeople.github.io/discussions
+    about: Ask questions and share ideas.

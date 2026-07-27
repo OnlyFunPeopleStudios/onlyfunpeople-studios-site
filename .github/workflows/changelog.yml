@@ -1,0 +1,56 @@
+name: Auto Changelog
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          # Get the latest release
+          LATEST_TAG="${{ github.event.release.tag_name }}"
+          PREV_TAG=$(git describe --tags --abbrev=0 ${LATEST_TAG}^ 2>/dev/null || echo "")
+
+          echo "## ${LATEST_TAG} - $(date +'%Y-%m-%d')" > CHANGELOG_BODY.md
+          echo "" >> CHANGELOG_BODY.md
+          echo "${{ github.event.release.body }}" >> CHANGELOG_BODY.md
+          echo "" >> CHANGELOG_BODY.md
+
+          # Update CHANGELOG.md
+          if [ -f CHANGELOG.md ]; then
+            # Prepend new entry after header
+            HEADER=$(head -n 3 CHANGELOG.md)
+            REST=$(tail -n +4 CHANGELOG.md)
+            echo "$HEADER" > CHANGELOG_NEW.md
+            echo "" >> CHANGELOG_NEW.md
+            cat CHANGELOG_BODY.md >> CHANGELOG_NEW.md
+            echo "" >> CHANGELOG_NEW.md
+            echo "$REST" >> CHANGELOG_NEW.md
+            mv CHANGELOG_NEW.md CHANGELOG.md
+          else
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "All notable changes to OnlyFunPeople Studios projects." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            cat CHANGELOG_BODY.md >> CHANGELOG.md
+          fi
+
+      - name: Commit Changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet || git commit -m "docs: update changelog for ${{ github.event.release.tag_name }}"
+          git push
