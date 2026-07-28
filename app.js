@@ -1,14 +1,8 @@
-const menuButton = document.querySelector('.menu-button');
-const navigation = document.querySelector('.site-nav');
-menuButton?.addEventListener('click', () => {
-  const open = navigation.classList.toggle('open');
-  menuButton.setAttribute('aria-expanded', String(open));
+const hero = document.querySelector('.hero');
+const layersToggle = document.querySelector('#layers-toggle');
+
+layersToggle?.addEventListener('click', () => {
+  const isActive = hero.classList.toggle('is-exploded');
+  layersToggle.setAttribute('aria-pressed', String(isActive));
+  layersToggle.innerHTML = `${isActive ? 'Ocultar capas' : 'Ver cómo funciona'} <span>+</span>`;
 });
-document.querySelectorAll('.site-nav a').forEach((link) => link.addEventListener('click', () => {
-  navigation.classList.remove('open');
-  menuButton?.setAttribute('aria-expanded', 'false');
-}));
-const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
-  if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
-}), { threshold: 0.12 });
-document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
